@@ -1,5 +1,7 @@
 import { User, InsertUser, Activity, InsertActivity, Log, InsertLog, UserRole, activities, ActivityType } from "@shared/schema";
 import { hashPassword, comparePassword } from "./utils";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 
 export interface IStorage {
   // User operations
@@ -29,189 +31,96 @@ export interface IStorage {
 }
 
 export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private activities: Map<number, Activity>;
-  private logs: Map<number, Log>;
-  userCurrentId: number;
-  activityCurrentId: number;
-  logCurrentId: number;
+  private db: ReturnType<typeof drizzle>;
 
   constructor() {
-    this.users = new Map();
-    this.activities = new Map();
-    this.logs = new Map();
-    this.userCurrentId = 1;
-    this.activityCurrentId = 1;
-    this.logCurrentId = 1;
-    
-    // Create default admin user
-    this.createUser({
-      email: "crico1993@gmail.com",
-      password: "qwert1234",
-      name: "Carlos Ricardo",
-      role: UserRole.ADMIN,
-      active: true
-    });
-    
-    // Create a sample server user
-    this.createUser({
-      email: "server@example.com",
-      password: "password123",
-      name: "Ana Silva",
-      role: UserRole.SERVER,
-      active: true
-    });
-    
-    // Create a sample manager user
-    this.createUser({
-      email: "manager@example.com",
-      password: "password123",
-      name: "Marcos Oliveira",
-      role: UserRole.MANAGER,
-      active: true
-    });
+    const connectionString = process.env.DATABASE_URL;
+    if (!connectionString) {
+      throw new Error("DATABASE_URL não está definido nas variáveis de ambiente.");
+    }
+    const pg = postgres(connectionString);
+    this.db = drizzle(pg);
   }
 
   // User operations
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const result = await this.db.select().from(users).where(eq(users.id, id)).limit(1).all();
+    return result[0];
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.email.toLowerCase() === email.toLowerCase(),
-    );
+    const result = await this.db.select().from(users).where(eq(users.email, email)).limit(1).all();
+    return result[0];
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.userCurrentId++;
     const hashedPassword = await hashPassword(insertUser.password);
-    
-    // Garantir que o role seja um valor válido do enum UserRole
-    const role = insertUser.role ? insertUser.role as UserRole : UserRole.SERVER;
-    const active = insertUser.active !== undefined ? insertUser.active : true;
-    
-    const user: User = { 
-      id,
-      name: insertUser.name,
-      email: insertUser.email,
-      password: hashedPassword,
-      role,
-      active,
-      createdAt: new Date()
-    };
-    this.users.set(id, user);
-    return user;
+    const user = { ...insertUser, password: hashedPassword };
+    const result = await this.db.insert(users).values(user).returning().all();
+    return result[0];
   }
 
   async updateUser(id: number, data: Partial<User>): Promise<User | undefined> {
-    const user = this.users.get(id);
-    if (!user) return undefined;
-
-    // If updating password, hash it
     if (data.password) {
       data.password = await hashPassword(data.password);
     }
-    
-    const updatedUser = { ...user, ...data };
-    this.users.set(id, updatedUser);
-    return updatedUser;
+    const result = await this.db.update(users).set(data).where(eq(users.id, id)).returning().all();
+    return result[0];
   }
 
   async getUsers(): Promise<User[]> {
-    return Array.from(this.users.values());
+    return await this.db.select().from(users).all();
   }
 
   // Activity operations
   async createActivity(insertActivity: InsertActivity): Promise<Activity> {
-    const id = this.activityCurrentId++;
-    
-    // Garantir que o tipo de atividade seja um valor válido do enum ActivityType
-    const type = insertActivity.type as ActivityType;
-    
-    const activity: Activity = { 
-      id,
-      type,
-      description: insertActivity.description,
-      date: insertActivity.date instanceof Date ? insertActivity.date : new Date(insertActivity.date),
-      userId: insertActivity.userId,
-      municipalities: insertActivity.municipalities || null,
-      files: Array.isArray(insertActivity.files) ? insertActivity.files : null,
-      observations: insertActivity.observations || null,
-      createdAt: new Date()
-    };
-    
-    this.activities.set(id, activity);
-    return activity;
+    const result = await this.db.insert(activities).values(insertActivity).returning().all();
+    return result[0];
   }
 
   async getActivity(id: number): Promise<Activity | undefined> {
-    return this.activities.get(id);
+    const result = await this.db.select().from(activities).where(eq(activities.id, id)).limit(1).all();
+    return result[0];
   }
 
   async updateActivity(id: number, data: Partial<Activity>): Promise<Activity | undefined> {
-    const activity = this.activities.get(id);
-    if (!activity) return undefined;
-
-    const updatedActivity = { ...activity, ...data };
-    this.activities.set(id, updatedActivity);
-    return updatedActivity;
+    const result = await this.db.update(activities).set(data).where(eq(activities.id, id)).returning().all();
+    return result[0];
   }
 
   async deleteActivity(id: number): Promise<boolean> {
-    return this.activities.delete(id);
+    const result = await this.db.delete(activities).where(eq(activities.id, id)).returning().all();
+    return result.length > 0;
   }
 
   async getActivities(): Promise<Activity[]> {
-    return Array.from(this.activities.values());
+    return await this.db.select().from(activities).all();
   }
 
   async getActivitiesByUserId(userId: number): Promise<Activity[]> {
-    return Array.from(this.activities.values()).filter(
-      (activity) => activity.userId === userId
-    );
+    return await this.db.select().from(activities).where(eq(activities.userId, userId)).all();
   }
 
   async getActivitiesByType(type: ActivityType): Promise<Activity[]> {
-    return Array.from(this.activities.values()).filter(
-      (activity) => activity.type === type
-    );
+    return await this.db.select().from(activities).where(eq(activities.type, type)).all();
   }
 
   async getActivitiesByDate(startDate: Date, endDate: Date): Promise<Activity[]> {
-    return Array.from(this.activities.values()).filter(
-      (activity) => {
-        const activityDate = activity.date instanceof Date 
-          ? activity.date 
-          : new Date(activity.date);
-        
-        return activityDate >= startDate && activityDate <= endDate;
-      }
-    );
+    return await this.db.select().from(activities).where(and(gte(activities.date, startDate), lte(activities.date, endDate))).all();
   }
 
   // Log operations
   async createLog(insertLog: InsertLog): Promise<Log> {
-    const id = this.logCurrentId++;
-    const log: Log = { 
-      id,
-      action: insertLog.action,
-      userId: insertLog.userId,
-      details: insertLog.details || {}, // Garante que details nunca é undefined
-      createdAt: new Date()
-    };
-    this.logs.set(id, log);
-    return log;
+    const result = await this.db.insert(logs).values(insertLog).returning().all();
+    return result[0];
   }
 
   async getLogs(): Promise<Log[]> {
-    return Array.from(this.logs.values());
+    return await this.db.select().from(logs).all();
   }
 
   async getLogsByUserId(userId: number): Promise<Log[]> {
-    return Array.from(this.logs.values()).filter(
-      (log) => log.userId === userId
-    );
+    return await this.db.select().from(logs).where(eq(logs.userId, userId)).all();
   }
 
   // Authentication

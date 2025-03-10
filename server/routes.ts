@@ -13,6 +13,8 @@ import {
   UserRole 
 } from "@shared/schema";
 import { zValidationErrorToResponse, comparePassword, hashPassword } from "./utils";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 
 // Define a type for our session data
 declare module "express-session" {
@@ -43,6 +45,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       next();
     };
   };
+
+  // Database connection
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    throw new Error("DATABASE_URL não está definido nas variáveis de ambiente.");
+  }
+  const pg = postgres(connectionString);
+  const db = drizzle(pg);
 
   // AUTH ROUTES
   app.post("/api/auth/login", async (req, res) => {
