@@ -76,3 +76,10 @@ export function getActivityTypeLabel(type: string): string {
   
   return labelMap[type] || 'Desconhecido';
 }
+
+// Check for DATABASE_URL environment variable
+export function checkDatabaseUrl() {
+  if (!process.env.DATABASE_URL) {
+    throw new Error("DATABASE_URL is not set in environment variables.");
+  }
+}

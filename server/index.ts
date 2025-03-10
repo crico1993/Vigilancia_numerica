@@ -6,6 +6,14 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Middleware to check for DATABASE_URL environment variable
+app.use((req, res, next) => {
+  if (!process.env.DATABASE_URL) {
+    return res.status(500).json({ message: "DATABASE_URL is not set in environment variables." });
+  }
+  next();
+});
+
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
