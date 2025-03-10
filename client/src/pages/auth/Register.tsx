@@ -25,6 +25,7 @@ export default function Register() {
   const [isLoading, setIsLoading] = useState(false);
   const [, navigate] = useLocation();
   const { toast } = useToast();
+  const [error, setError] = useState<string | null>(null);
 
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
@@ -51,6 +52,7 @@ export default function Register() {
       navigate("/login");
     } catch (error) {
       console.error("Erro ao registrar:", error);
+      setError("Ocorreu um erro ao criar sua conta.");
       toast({
         variant: "destructive",
         title: "Erro ao registrar",
@@ -68,6 +70,11 @@ export default function Register() {
           <h1 className="text-3xl font-bold">Criar Conta</h1>
           <p className="text-muted-foreground">Preencha os dados para se registrar</p>
         </div>
+        {error && (
+          <div className="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg" role="alert">
+            {error}
+          </div>
+        )}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField

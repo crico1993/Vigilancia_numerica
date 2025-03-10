@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { 
@@ -22,18 +21,31 @@ export default function ManagerDashboard() {
   const [activityType, setActivityType] = useState<string>("");
   const [userId, setUserId] = useState<number | undefined>();
   const [municipality, setMunicipality] = useState<string>("");
+  const [fetchError, setFetchError] = useState<string | null>(null);
   
   // Fetch all activities and statistics
   const { data: activities } = useQuery({
     queryKey: ['/api/activities', dateRange, activityType, userId, municipality],
+    onError: (error: any) => {
+      console.error("Error fetching activities:", error);
+      setFetchError("Ocorreu um erro ao carregar as atividades.");
+    }
   });
   
   const { data: statistics } = useQuery({
     queryKey: ['/api/statistics'],
+    onError: (error: any) => {
+      console.error("Error fetching statistics:", error);
+      setFetchError("Ocorreu um erro ao carregar as estatísticas.");
+    }
   });
   
   const { data: users } = useQuery({
     queryKey: ['/api/users'],
+    onError: (error: any) => {
+      console.error("Error fetching users:", error);
+      setFetchError("Ocorreu um erro ao carregar os usuários.");
+    }
   });
   
   // Get unique municipalities from activities
@@ -161,6 +173,12 @@ export default function ManagerDashboard() {
           </div>
         </CardContent>
       </Card>
+
+      {fetchError && (
+        <div className="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg" role="alert">
+          {fetchError}
+        </div>
+      )}
 
       {/* Stats Overview */}
       <div className="grid gap-4 md:grid-cols-3">

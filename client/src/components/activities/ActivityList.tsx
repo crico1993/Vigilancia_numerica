@@ -47,10 +47,15 @@ export default function ActivityList({
   const { user } = useAuth();
   const [page, setPage] = useState(1);
   const activitiesPerPage = 10;
-  
+  const [fetchError, setFetchError] = useState<string | null>(null);
+
   // Fetch activities
   const { data: activities, isLoading } = useQuery({
     queryKey: ['/api/activities'],
+    onError: (error: any) => {
+      console.error("Error fetching activities:", error);
+      setFetchError("Ocorreu um erro ao carregar as atividades.");
+    }
   });
   
   // Filter activities
@@ -127,6 +132,11 @@ export default function ActivityList({
 
   return (
     <div className="border rounded-md">
+      {fetchError && (
+        <div className="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg" role="alert">
+          {fetchError}
+        </div>
+      )}
       <Table>
         <TableHeader>
           <TableRow>
