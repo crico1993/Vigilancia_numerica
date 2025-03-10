@@ -1,0 +1,97 @@
+Aplicação “Vigilância em Números”
+1. Objetivo Geral
+
+Desenvolver uma plataforma web que possibilite o registro e a análise de todas as atividades realizadas pela subsecretaria de vigilância em saúde. A aplicação deverá registrar, organizar e apresentar dados de forma gráfica e interativa, permitindo a tomada de decisão estratégica e o acompanhamento do desempenho dos servidores.
+
+2. Funcionalidades Principais
+
+2.1 Cadastro e Autenticação de Usuários
+Perfis de Usuários:
+Administrador: Usuário com perfil máximo (exemplo: e-mail: crico1993@gmail.com / senha: qwert1234 para ambiente de testes). Tem acesso a todas as funcionalidades do sistema, incluindo gerenciamento de cadastros e logs.
+Servidor: Usuário responsável por registrar suas atividades, visualizar seu próprio desempenho e gerar relatórios de suas ações.
+Gestor: Usuário com perfil duplo (Gestor + Servidor). Além de cadastrar suas próprias atividades, tem acesso a uma visão consolidada e detalhada de todas as atividades registradas por todos os servidores.
+Login e Segurança:
+Autenticação via formulário de login.
+Botão de logout disponível em todos os dashboards.
+Funcionalidade de alteração de senha para todos os perfis.
+Para o Gestor, ao realizar login, deve ser apresentada uma tela para escolher entre os modos “Servidor” (para registrar e editar suas atividades pessoais) e “Gestor” (para visualizar o desempenho consolidado de todos os servidores).
+2.2 Registro de Atividades
+Tipos de Atividades:
+Capacitações realizadas.
+Suportes prestados aos municípios.
+Publicações (artigos, boletins, notas técnicas e oficiais).
+Participação em eventos.
+Viagens realizadas.
+Participação em cursos.
+Entrevistas.
+Respostas à ouvidoria.
+Respostas a demandas de comunicação.
+Outras atividades pertinentes.
+Campos de Registro:
+Tipo da atividade (seleção entre as opções pré-definidas).
+Descrição detalhada.
+Data e hora.
+Possibilidade de anexar arquivos (documentos, imagens, vídeos).
+Upload de imagens e outros arquivos produzidos.
+Possibilidade de incluir informações adicionais, como municípios envolvidos ou observações.
+Interface do Formulário:
+Interface intuitiva e responsiva.
+Validação dos campos e feedback em tempo real ao usuário.
+2.3 Dashboards e Relatórios
+2.3.1 Página do Servidor
+Resumo Pessoal:
+Visualização de um dashboard contendo gráficos (barras, pizza, linhas) que sintetizam o número de atividades realizadas, categorizadas por tipo e período.
+Lista detalhada das atividades registradas com opções para filtrar por data e tipo.
+Funcionalidades de Registro e Edição:
+Botão para inserir uma nova atividade.
+Funcionalidade para editar e excluir apenas as atividades registradas pelo próprio servidor.
+Botão para realizar o download de um relatório individual de atividades (em formatos PDF ou Excel).
+2.3.2 Página do Gestor
+Visão Consolidada:
+Dashboard avançado que apresenta o desempenho de todos os servidores, com indicadores e gráficos interativos.
+Filtros para visualização por profissional, tipo de atividade, período e município.
+Módulo de exportação de relatórios quantitativos e gráficos detalhados.
+Restrições e Permissões:
+O Gestor não pode editar ou excluir atividades de outros servidores; sua função é exclusivamente de visualização e análise.
+Modo de Escolha:
+Ao efetuar login, o Gestor terá a opção de escolher entre o modo “Servidor” (para cadastrar e gerenciar suas atividades pessoais) e o modo “Gestor” (para acesso à visão consolidada).
+2.4 Administração do Sistema
+Funcionalidades do Administrador:
+Aprovação ou negação de novos cadastros de usuários.
+Alteração do perfil de cada cadastro (definindo se o usuário será Administrador, Servidor ou Gestor).
+Reset de senhas dos perfis, conforme necessário.
+Acesso a um log detalhado de todas as operações do sistema para fins de auditoria e segurança.
+Monitoramento e gerenciamento dos registros de atividades, com ferramentas para correção de erros ou exclusão de registros indevidos.
+3. Considerações Técnicas
+
+Arquitetura:
+Aplicação web com backend robusto (sugerido: Node.js, Python-Django ou Flask) e frontend moderno (sugerido: React, Angular ou Vue.js).
+Banco de dados relacional (PostgreSQL ou MySQL) para armazenar informações dos usuários, atividades, logs e anexos.
+Segurança:
+Autenticação segura e controle de acesso baseado em perfil.
+Criptografia de senhas e dados sensíveis.
+Auditoria de logs e monitoramento de atividades para garantir a integridade dos dados.
+Interface e Usabilidade:
+Design responsivo e intuitivo para acesso via dispositivos móveis e desktops.
+Painéis interativos com gráficos e relatórios que facilitam a visualização dos dados.
+Upload e Armazenamento:
+Sistema de upload de arquivos com suporte para imagens e documentos.
+Armazenamento seguro e gerenciamento de arquivos, com possibilidade de download conforme necessário.
+Relatórios:
+Geração de relatórios quantitativos e visuais em formatos compatíveis (PDF, Excel).
+Filtros avançados para personalização dos dados exibidos nos dashboards.
+4. Fluxo de Uso
+Acesso e Login:
+O usuário acessa a página de login e entra com suas credenciais.
+O Administrador tem acesso a uma área exclusiva para gerenciamento de cadastros e logs.
+O Servidor é direcionado ao seu dashboard pessoal, onde pode registrar, editar e visualizar suas atividades.
+O Gestor, após o login, escolhe entre o modo “Servidor” ou “Gestor” para alternar entre registrar suas atividades pessoais e visualizar a consolidação dos dados de todos os servidores.
+Registro de Atividades:
+O Servidor ou Gestor (no modo Servidor) preenche o formulário de registro de atividade, incluindo todos os dados relevantes e uploads necessários.
+A atividade é salva no sistema e imediatamente refletida nos dashboards.
+Visualização e Análise:
+Cada usuário acessa seu dashboard para visualizar gráficos e relatórios que sintetizam as atividades registradas.
+O Gestor utiliza filtros e indicadores visuais para monitorar o desempenho de toda a equipe, podendo exportar relatórios para análises adicionais.
+Gestão Administrativa:
+O Administrador revisa e aprova novos cadastros, ajusta perfis e monitora logs do sistema para garantir a integridade e segurança da aplicação.
+Em caso de problemas, o Administrador pode resetar senhas e corrigir registros.
