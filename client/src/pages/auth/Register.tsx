@@ -42,8 +42,16 @@ export default function Register() {
     console.log("Tentando registrar:", data.email);
 
     try {
-      // Add your registration logic here
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Mock API call
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || response.statusText);
+      }
 
       toast({
         title: "Registro realizado com sucesso",

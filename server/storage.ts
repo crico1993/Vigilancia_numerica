@@ -1,7 +1,8 @@
-import { User, InsertUser, Activity, InsertActivity, Log, InsertLog, UserRole, activities, ActivityType } from "@shared/schema";
+import { User, InsertUser, Activity, InsertActivity, Log, InsertLog, UserRole, activities, ActivityType, users, logs } from "@shared/schema";
 import { hashPassword, comparePassword } from "./utils";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
+import { eq, and, gte, lte } from "drizzle-orm/expressions";
 
 export interface IStorage {
   // User operations
