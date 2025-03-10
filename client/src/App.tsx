@@ -63,13 +63,18 @@ function Router() {
           const { user } = useAuth();
           if (!user) return <Login />;
           
-          switch (user.role) {
-            case "admin":
-              return <AdminDashboard />;
-            case "manager":
-              return <ManagerDashboard />;
-            default:
-              return <ServerDashboard />;
+          try {
+            switch (user.role) {
+              case "admin":
+                return <AdminDashboard />;
+              case "manager":
+                return <ManagerDashboard />;
+              default:
+                return <ServerDashboard />;
+            }
+          } catch (error) {
+            console.error("Error rendering dashboard:", error);
+            return <div>Ocorreu um erro ao carregar o dashboard.</div>;
           }
         }}
       </Route>

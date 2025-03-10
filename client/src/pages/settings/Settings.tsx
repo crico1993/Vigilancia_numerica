@@ -69,9 +69,13 @@ export default function Settings() {
   // Update profile mutation
   const updateProfileMutation = useMutation({
     mutationFn: async (values: ProfileFormValues) => {
-      return apiRequest('PATCH', `/api/users/${user?.id}`, {
-        name: values.name,
-      });
+      try {
+        return await apiRequest('PATCH', `/api/users/${user?.id}`, {
+          name: values.name,
+        });
+      } catch (error) {
+        throw new Error('Erro ao atualizar perfil');
+      }
     },
     onSuccess: () => {
       toast({
@@ -91,10 +95,14 @@ export default function Settings() {
   // Change password mutation
   const changePasswordMutation = useMutation({
     mutationFn: async (values: PasswordFormValues) => {
-      return apiRequest('POST', '/api/users/change-password', {
-        currentPassword: values.currentPassword,
-        newPassword: values.newPassword,
-      });
+      try {
+        return await apiRequest('POST', '/api/users/change-password', {
+          currentPassword: values.currentPassword,
+          newPassword: values.newPassword,
+        });
+      } catch (error) {
+        throw new Error('Erro ao alterar senha');
+      }
     },
     onSuccess: () => {
       passwordForm.reset();
@@ -114,11 +122,27 @@ export default function Settings() {
   
   // Handle form submissions
   const onUpdateProfile = (values: ProfileFormValues) => {
-    updateProfileMutation.mutate(values);
+    try {
+      updateProfileMutation.mutate(values);
+    } catch (error) {
+      toast({
+        title: 'Erro',
+        description: `Falha ao atualizar perfil: ${error.message}`,
+        variant: 'destructive',
+      });
+    }
   };
   
   const onChangePassword = (values: PasswordFormValues) => {
-    changePasswordMutation.mutate(values);
+    try {
+      changePasswordMutation.mutate(values);
+    } catch (error) {
+      toast({
+        title: 'Erro',
+        description: `Falha ao alterar senha: ${error.message}`,
+        variant: 'destructive',
+      });
+    }
   };
   
   // Download user data (example function)
