@@ -10,7 +10,7 @@ const PendingUsers = ({ users }) => {
 
   const approveUserMutation = useMutation({
     mutationFn: async (userId: number) => {
-      return apiRequest('PATCH', `/api/users/${userId}/approve`);
+      return apiRequest('PATCH', `/api/users/${userId}`, { approved: true });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/users'] });
@@ -33,6 +33,7 @@ const PendingUsers = ({ users }) => {
       {users.map((user) => (
         <div key={user.id} className="user-item">
           <span>{user.name}</span>
+          <span>{user.approved ? 'Aprovado' : 'Pendente'}</span>
           <Button 
             onClick={() => approveUserMutation.mutate(user.id)}
             variant="outline" 
