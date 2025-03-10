@@ -1,9 +1,11 @@
 import React from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 import { Button } from '@/components/ui/button';
-import { CheckCircle } from 'lucide-react';
-import { apiRequest } from '@/lib/queryClient';
-import { useToast } from '@/hooks/use-toast';
+
+import { CheckCircle } from 'icons/CheckCircle';
+import { apiRequest } from 'utils/api';
+import { toast } from 'components/Toast';
+
 
 const PendingUsers = ({ users }) => {
   const queryClient = useQueryClient();
