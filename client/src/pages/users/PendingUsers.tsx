@@ -1,16 +1,19 @@
 import React from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 import { Button } from '@/components/ui/button';
+
 import { CheckCircle } from 'icons/CheckCircle';
 import { apiRequest } from 'utils/api';
 import { toast } from 'components/Toast';
 
+
 const PendingUsers = ({ users }) => {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const approveUserMutation = useMutation({
     mutationFn: async (userId: number) => {
-      return apiRequest('PATCH', `/api/users/${userId}/approve`);
+      return apiRequest('PATCH', `/api/users/${userId}`, { approved: true });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/users'] });
@@ -33,6 +36,7 @@ const PendingUsers = ({ users }) => {
       {users.map((user) => (
         <div key={user.id} className="user-item">
           <span>{user.name}</span>
+          <span>{user.approved ? 'Aprovado' : 'Pendente'}</span>
           <Button 
             onClick={() => approveUserMutation.mutate(user.id)}
             variant="outline" 

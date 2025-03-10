@@ -127,12 +127,13 @@ const UserTable = () => {
           <Th>Email</Th>
           <Th>Role</Th>
           <Th>Status</Th>
+          <Th>Aprovação</Th>
         </Tr>
       </Thead>
       <Tbody>
         {isLoading ? (
           <Tr>
-            <Td colSpan={4}>Carregando...</Td>
+            <Td colSpan={5}>Carregando...</Td>
           </Tr>
         ) : (
           users.map((user) => (
@@ -145,14 +146,14 @@ const UserTable = () => {
                 </Badge>
               </TableCell>
               <TableCell>
-                <div className="flex flex-col gap-1">
-                  <Badge variant={user.active ? 'success' : 'destructive'}>
-                    {user.active ? 'Ativo' : 'Inativo'}
-                  </Badge>
-                  <Badge variant={user.approved ? 'success' : 'warning'}>
-                    {user.approved ? 'Aprovado' : 'Pendente'}
-                  </Badge>
-                </div>
+                <Badge variant={user.active ? 'success' : 'destructive'}>
+                  {user.active ? 'Ativo' : 'Inativo'}
+                </Badge>
+              </TableCell>
+              <TableCell>
+                <Badge variant={user.approved ? 'success' : 'warning'}>
+                  {user.approved ? 'Aprovado' : 'Pendente'}
+                </Badge>
               </TableCell>
             </TableRow>
           ))

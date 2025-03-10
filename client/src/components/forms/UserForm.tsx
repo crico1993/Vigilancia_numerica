@@ -36,6 +36,7 @@ const userFormSchema = z.object({
   password: z.string().min(6, { message: 'Senha deve ter pelo menos 6 caracteres' }).optional(),
   role: z.string(),
   active: z.boolean().default(true),
+  approved: z.boolean().default(false),
 });
 
 type UserFormValues = z.infer<typeof userFormSchema>;
@@ -59,6 +60,7 @@ export default function UserForm({ id }: UserFormProps) {
       password: '',
       role: UserRole.SERVER,
       active: true,
+      approved: false,
     },
   });
 
@@ -68,6 +70,7 @@ export default function UserForm({ id }: UserFormProps) {
     email: string;
     role: string;
     active: boolean;
+    approved: boolean;
   }
   
   // Fetch user data if in edit mode
@@ -79,13 +82,14 @@ export default function UserForm({ id }: UserFormProps) {
   // Populate form with user data when in edit mode
   useEffect(() => {
     if (isEditMode && userData) {
-      const { name = '', email = '', role = UserRole.SERVER, active = true } = userData;
+      const { name = '', email = '', role = UserRole.SERVER, active = true, approved = false } = userData;
       form.reset({
         name,
         email,
         password: '', // Don't set password when editing
         role,
         active,
+        approved,
       });
     }
   }, [userData, isEditMode, form]);
@@ -257,6 +261,27 @@ export default function UserForm({ id }: UserFormProps) {
                       <FormLabel className="text-base">Usuário Ativo</FormLabel>
                       <p className="text-sm text-muted-foreground">
                         Determina se o usuário pode acessar o sistema
+                      </p>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="approved"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base">Usuário Aprovado</FormLabel>
+                      <p className="text-sm text-muted-foreground">
+                        Determina se o usuário foi aprovado pelo administrador
                       </p>
                     </div>
                     <FormControl>
