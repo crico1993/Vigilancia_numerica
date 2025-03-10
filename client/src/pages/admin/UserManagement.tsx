@@ -1,3 +1,18 @@
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter } from '@chakra-ui/react';
+import { FormControl, FormLabel, Input, Select, Button, Switch, Table, Thead, Tbody, Tr, Th, Td, Badge } from '@chakra-ui/react';
+import { useToast } from '@/hooks/use-toast';
+import { getUsers, updateUser } from '@/lib/api';
+import { User } from '@/types';
+
+interface EditUserDialogProps {
+  isOpen: boolean;
+  onClose: () => void;
+  user: User;
+}
+
 const EditUserDialog = ({ isOpen, onClose, user }: EditUserDialogProps) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -57,47 +72,14 @@ const EditUserDialog = ({ isOpen, onClose, user }: EditUserDialogProps) => {
                 <option value="manager">Gerente</option>
               </Select>
             </FormControl>
-            <FormField
-              control={form.control}
-              name="active"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
-                  <div className="space-y-0.5">
-                    <FormLabel>Status da Conta</FormLabel>
-                    <FormDescription>
-                      Ative ou desative a conta deste usuário
-                    </FormDescription>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="approved"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
-                  <div className="space-y-0.5">
-                    <FormLabel>Aprovação</FormLabel>
-                    <FormDescription>
-                      Aprovar ou rejeitar o cadastro deste usuário
-                    </FormDescription>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
+            <FormControl>
+              <FormLabel htmlFor='active'>Status da Conta</FormLabel>
+              <Switch id='active' {...form.register('active')} />
+            </FormControl>
+            <FormControl>
+              <FormLabel htmlFor='approved'>Aprovação</FormLabel>
+              <Switch id='approved' {...form.register('approved')} />
+            </FormControl>
           </ModalBody>
 
           <ModalFooter>
@@ -114,52 +96,74 @@ const EditUserDialog = ({ isOpen, onClose, user }: EditUserDialogProps) => {
 const UserTable = () => {
   const queryClient = useQueryClient();
   const { data: users, isLoading } = useQuery(['users'], getUsers);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   const handleEdit = (user: User) => {
-    // handle edit
+    setSelectedUser(user);
+    setIsEditDialogOpen(true);
+  };
+
+  const closeEditDialog = () => {
+    setSelectedUser(null);
+    setIsEditDialogOpen(false);
   };
 
   return (
-    <Table variant='striped' size='sm'>
-      <Thead>
-        <Tr>
-          <Th>Nome</Th>
-          <Th>Email</Th>
-          <Th>Role</Th>
-          <Th>Status</Th>
-          <Th>Aprovação</Th>
-        </Tr>
-      </Thead>
-      <Tbody>
-        {isLoading ? (
+    <>
+      <Table variant='striped' size='sm'>
+        <Thead>
           <Tr>
-            <Td colSpan={5}>Carregando...</Td>
+            <Th>Nome</Th>
+            <Th>Email</Th>
+            <Th>Role</Th>
+            <Th>Status</Th>
+            <Th>Aprovação</Th>
+            <Th>Ações</Th>
           </Tr>
-        ) : (
-          users.map((user) => (
-            <TableRow key={user.id}>
-              <TableCell>{user.name}</TableCell>
-              <TableCell>{user.email}</TableCell>
-              <TableCell>
-                <Badge variant={user.role === 'admin' ? 'destructive' : user.role === 'manager' ? 'default' : 'outline'}>
-                  {getUserRoleLabel(user.role)}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                <Badge variant={user.active ? 'success' : 'destructive'}>
-                  {user.active ? 'Ativo' : 'Inativo'}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                <Badge variant={user.approved ? 'success' : 'warning'}>
-                  {user.approved ? 'Aprovado' : 'Pendente'}
-                </Badge>
-              </TableCell>
-            </TableRow>
-          ))
-        )}
-      </Tbody>
-    </Table>
+        </Thead>
+        <Tbody>
+          {isLoading ? (
+            <Tr>
+              <Td colSpan={6}>Carregando...</Td>
+            </Tr>
+          ) : (
+            users.map((user) => (
+              <Tr key={user.id}>
+                <Td>{user.name}</Td>
+                <Td>{user.email}</Td>
+                <Td>
+                  <Badge variant={user.role === 'admin' ? 'destructive' : user.role === 'manager' ? 'default' : 'outline'}>
+                    {user.role}
+                  </Badge>
+                </Td>
+                <Td>
+                  <Badge variant={user.active ? 'success' : 'destructive'}>
+                    {user.active ? 'Ativo' : 'Inativo'}
+                  </Badge>
+                </Td>
+                <Td>
+                  <Badge variant={user.approved ? 'success' : 'warning'}>
+                    {user.approved ? 'Aprovado' : 'Pendente'}
+                  </Badge>
+                </Td>
+                <Td>
+                  <Button size='sm' onClick={() => handleEdit(user)}>Editar</Button>
+                </Td>
+              </Tr>
+            ))
+          )}
+        </Tbody>
+      </Table>
+
+      {selectedUser && (
+        <EditUserDialog
+          isOpen={isEditDialogOpen}
+          onClose={closeEditDialog}
+          user={selectedUser}
+        />
+      )}
+    </>
   );
 };
 
